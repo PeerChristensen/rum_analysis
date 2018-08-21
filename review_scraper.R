@@ -1,6 +1,10 @@
 ###################################################
 # scraping rum reviews and more from rumratings.com
+# data scrape August 21, 2018
 ###################################################
+
+# --------------------------------------
+# Load packages
 
 library(tidyverse)
 library(rvest)
@@ -43,7 +47,6 @@ brand_base_urls <- unique(brand_base_urls)
 
 # ---------------------------------------------
 # Extract meta data
-# name, n ratings, price, country, category
 
 name      <- NULL
 n_ratings <- NULL
@@ -156,7 +159,7 @@ other_vars      <- NULL
 base            <- NULL
 
 
-k = 1 
+k = 1 #remember to do 1,2,3 again
 for (url in urls) {
 
   html <- url                     %>%
@@ -238,5 +241,4 @@ review_df$brand_base_urls %<>%
 df <- left_join(review_df, meta_df)
 
 write_csv(df, "big_rum_data_v1.csv")
-
 
