@@ -198,7 +198,8 @@ plot_2d = orig_df %>%
   guides(size = guide_legend(title = "n Raters")) +
   labs(title = 'Relationship between rum ratings, price and sugar content\n\nRating: {round(frame_time,1)}') +
   transition_time(round(Rating,1)) +
-  ease_aes('linear')
+  ease_aes('linear') +
+  shadow_wake(.6)
 animate(plot_2d, nframes = 15, fps = 2)
 
 # INTERACTIVE 3D BUBBLE PLOT -----------------------------------------

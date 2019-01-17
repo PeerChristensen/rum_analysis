@@ -3,15 +3,17 @@
 # data scrape August 21, 2018
 ###################################################
 
-# --------------------------------------
+# -----------------------------------------
 # Load packages
+# -----------------------------------------
 
 library(tidyverse)
 library(rvest)
 library(magrittr)
 
-# -------------------------------------
+# -----------------------------------------
 # Create a list with all top level urls
+# -----------------------------------------
 
 website     <- "https://www.rumratings.com"
 base_url    <- "https://www.rumratings.com/brands?page="
@@ -21,8 +23,9 @@ base_url    <- "https://www.rumratings.com/brands?page="
 page_number <- seq_along(1:144)
 page_urls   <- paste0(base_url, page_number)
 
-# ---------------------------------------
+# -----------------------------------------
 # Extract base urls for each rum
+# -----------------------------------------
 
 brand_base_urls <- list()
 
@@ -34,7 +37,7 @@ for (i in page_urls) {
     html_nodes("div a")                %>%
     html_attr("href")                  %>%
     as.tibble()                        %>%
-    filter(grepl("/brands/", value), 
+    dplyr::filter(grepl("/brands/", value), 
            !grepl("review_id", value)) %>%
     mutate(value = paste0(website, value))
   
@@ -45,8 +48,9 @@ for (i in page_urls) {
 brand_base_urls <- unlist(brand_base_urls)
 brand_base_urls <- unique(brand_base_urls)
 
-# ---------------------------------------------
+# -----------------------------------------
 # Extract meta data
+# -----------------------------------------
 
 name      <- NULL
 n_ratings <- NULL
@@ -105,10 +109,11 @@ write_csv(meta_df_original, "meta_data_full_original.csv")
 meta_df <- meta_df[!duplicated(meta_df),]
 write_csv(meta_df, "meta_data_full.csv")
 
-# --------------------------------------
+# -----------------------------------------
 # Find last pages for all brand urls
+# -----------------------------------------
 
-# the loop stopped at 25, likely beacuse the remaining rums only have one page
+# the loop stopped at 25, likely because the remaining rums only have one page
 # and therefore no "last" html tag
 
 last_pages <- NULL
@@ -137,8 +142,9 @@ last_df <- tibble(base = paste0(brand_base_urls,"?page="),
                   last = last_pages,
                   brand_base_urls)
 
-# --------------------------------------
+# -----------------------------------------
 # Store all review urls
+# -----------------------------------------
 
 urls <- NULL
 
@@ -149,8 +155,9 @@ for (i in seq_along(last_df$last)) {
   } 
 }
 
-# --------------------------------------
+# -----------------------------------------
 # Scrape reviews and other variables
+# -----------------------------------------
 
 review_id       <- NULL
 review          <- NULL
@@ -158,8 +165,7 @@ rating          <- NULL
 other_vars      <- NULL
 base            <- NULL
 
-
-k = 1 #remember to do 1,2,3 again
+k = 1 
 for (url in urls) {
 
   html <- url                     %>%
@@ -187,8 +193,9 @@ for (url in urls) {
   k = k + 1
 }
 
-# --------------------------------------
+# -----------------------------------------
 # Extract other variables
+# -----------------------------------------
 
 other_vars = unlist(other_vars)
 
@@ -200,16 +207,16 @@ rev_n_ratings <- NULL
 
 k = 1
 for (i in other_vars) {
-  header[k] <- i        %>%
+  header[k]        <- i %>%
     str_split("\n")     %>%
     map(2)
-  date[k] <- i          %>%
+  date[k]          <- i %>%
     str_split("\n")     %>%
     map(6)
-  reviewer[k] <- i      %>%
+  reviewer[k]      <- i %>%
     str_split("\n")     %>%
     map(9)
-  location[k] <- i      %>%
+  location[k]      <- i %>%
     str_split("\n")     %>%
     map(11)
   rev_n_ratings[k] <- i %>%
@@ -235,8 +242,9 @@ review_df$brand_base_urls %<>%
   map(1) %>%
   unlist()
 
-# --------------------------------------
-# Join data frames
+# -----------------------------------------
+# Join data frames by brand_base_urls
+# -----------------------------------------
 
 df <- left_join(review_df, meta_df)
 
